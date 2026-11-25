@@ -603,6 +603,12 @@
                 Der letzte Abschnitt kann kürzer sein.
               </p>
               <p>
+                Videos und Vorschaubilder werden in einem separaten Browser-Worker abschnittsweise verschlüsselt. Der Browser überträgt die verschlüsselten Bytes in Paketen von höchstens 4 MiB; während ein Paket übertragen wird, kann das nächste vorbereitet werden.
+                Es wird keine vollständige verschlüsselte Dateikopie im Browser-Arbeitsspeicher gesammelt und keine zusätzliche Klartextdatei angelegt. Die angekündigte verschlüsselte Dateigröße wird vor der Verschlüsselung gegen die Serverlimits geprüft.
+                Erst nach vollständigem Eingang gibt der Server die Dateien für den anschließenden Submit frei. Die Upload-Anzeige zählt vom Server bestätigte Bytes. Diese Bestätigung ersetzt keine kryptografische Prüfung: Der Server besitzt die Dateischlüssel nicht; die GCM-Tags prüft der Browser beim Entschlüsseln.
+                Wiederholte Pakete müssen an derselben Position dieselben Bytes enthalten. Abgebrochene Uploads werden nach Möglichkeit entfernt; zurückgelassene temporäre Dateien werden serverseitig nach 24 Stunden anhand ihrer letzten Statusänderung bereinigt.
+              </p>
+              <p>
                 Jeder Abschnitt erhält eine eigene zufällige 12-Byte-IV und einen 16-Byte-Authentisierungstag. Innerhalb einer Datei wird keine IV wiederverwendet. Der Tag erlaubt die Prüfung, ob Inhalt oder zugehörige Zusatzdaten verändert wurden.
               </p>
               <figure>
@@ -1058,6 +1064,12 @@
             <section id="en-files" aria-labelledby="en-files-title">
               <h2 id="en-files-title">07 · How videos and thumbnails are encrypted</h2>
               <p>For each file, the browser generates a fresh file key and wraps it with the shared encryption key. File contents are encrypted with AES-256-GCM in chunks of <strong>34 KiB of plaintext</strong>. The last chunk may be shorter.</p>
+              <p>
+                Videos and thumbnails are encrypted incrementally in a dedicated browser worker. The browser transfers encrypted bytes in packets of at most 4 MiB; while one packet is being uploaded, the next can be prepared.
+                The browser does not accumulate a complete encrypted file in memory or create an additional plaintext file. The declared encrypted file size is checked against server limits before encryption starts.
+                Files become available for the subsequent submit only after the server has received them completely. Upload progress counts bytes acknowledged by the server. This acknowledgement is not a cryptographic check: the server does not possess the file keys; the browser verifies GCM tags during decryption.
+                Repeated packets must contain identical bytes at the same position. Aborted uploads are removed when possible; abandoned temporary files are cleaned up server-side after 24 hours based on their last status change.
+              </p>
               <p>Each chunk receives its own random 12-byte IV and a 16-byte authentication tag. IVs are not reused within a file. The tag allows changes to the content or associated data to be detected.</p>
               <figure>
                 <svg aria-label="File format and chunk layout" role="img" viewbox="0 0 760 230">
