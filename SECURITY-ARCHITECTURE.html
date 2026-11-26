@@ -586,6 +586,17 @@
                 Beim Passwortwechsel werden dieselben Archivschlüssel mit einem neuen Passwortschlüssel und frischem Salt neu verpackt. Der Login-Nachweis wird ebenfalls erneuert. Die Videos müssen deshalb nicht neu verschlüsselt werden. Zum Ändern
                 des eigenen Benutzernamens wird das aktuelle Passwort benötigt, weil der Benutzername Teil des Login-Salts ist.
               </p>
+              <p>
+                Beim Ändern des eigenen Passworts oder Benutzernamens sendet der Browser zusätzlich den aus dem aktuellen Passwort abgeleiteten bisherigen Login-Nachweis. Das Klartextpasswort bleibt auf dem Gerät. Der Server prüft den bisherigen
+                Nachweis gegen den aktuell gespeicherten scrypt-Prüfwert. Bei fehlendem oder falschem Nachweis sowie während einer Anmeldesperre bleiben die Kontodaten unverändert. Die Prüfung teilt sich Fehlversuchszähler und Sperrzeiten mit dem Login.
+                Für alle schreibenden Admin-Routen wird immer der Nachweis des handelnden Admins geprüft, auch bei fremden Konten. Das bisherige Passwort des Zielkontos wird nicht benötigt. Bei Einladungs- und Reset-Links übernimmt die Oberfläche das temporäre Passwort
+                aus dem Link in das Pflichtfeld für das aktuelle Passwort; es bleibt nur im Arbeitsspeicher.
+              </p>
+              <p>
+                Die zusätzliche Bestätigung gilt für Benutzeranlage, Anzeigenamen, Benutzernamen, Passwörter, Rollenänderungen, administrative Kontolöschung und die einmalige Schlüsselinitialisierung des ersten Admins. Lesende Admin-Zugriffe
+                benötigen keine erneute Passworteingabe. Die Benutzerverwaltung leitet den Nachweis aus dem eigenen Admin-Passwort ab und sendet ihn bei jeder schreibenden Anfrage mit. Eine Eingabe kann mehrere Anfragen eines Vorgangs bestätigen;
+                nach erfolgreichem Abschluss oder beim Schließen der Ansicht bleibt das Passwort nicht gespeichert. Bei der ersten Schlüsselinitialisierung verwendet der Browser das gerade eingegebene Anmeldepasswort.
+              </p>
               <p>Eine administrative Umbenennung erzeugt zugleich ein temporäres Passwort und einen Reset-Link. Umbenennung und Zurücksetzen erfolgen in getrennten Schritten; ein Fehler kann den Vorgang unvollständig lassen.</p>
               <p>
                 Ein Passwortwechsel beendet keine bereits ausgestellten Zugriffstokens und entzieht keine bereits bekannten Archivschlüssel. Wer sein Passwort vergessen hat, kann von einem anderen Admin mit entsperrten Archivschlüsseln einen neuen
@@ -1055,6 +1066,16 @@
               <p>
                 A password change rewraps the same archive keys with a new password key and fresh salt. It also renews the sign-in proof. Videos therefore do not need re-encryption. Changing your own username requires your current password because
                 the username is part of the sign-in salt.
+              </p>
+              <p>
+                When changing your own password or username, the browser also sends the existing sign-in proof derived from your current password. The plaintext password stays on your device. The server checks that proof against the currently stored
+                scrypt verifier. Missing or incorrect proofs and active sign-in locks leave the account data unchanged. Verification shares failed-attempt counters and lock durations with login. Every writing admin route requires the acting admin’s proof, even when changing someone else’s account. The target account’s previous password is not required. For invitation and reset links, the interface fills the required current-password field with the temporary password from the link; it is held
+                only in memory.
+              </p>
+              <p>
+                Additional confirmation covers account creation, display names, usernames, passwords, role changes, administrative account deletion and the first admin’s one-time key initialization. Read-only admin access does not require
+                another password entry. User management derives the proof from the acting admin’s password and includes it with every writing request. One entry can confirm several requests within an action; the password is not retained after
+                successful completion or closing the view. For initial key setup, the browser uses the password just entered at sign-in.
               </p>
               <p>Administrative renaming also generates a temporary password and reset link. Renaming and resetting happen in separate steps; an error can leave the operation incomplete.</p>
               <p>A password change does not invalidate already issued access tokens or revoke already known archive keys. Someone who forgets a password can receive new access from another admin with unlocked archive keys.</p>
