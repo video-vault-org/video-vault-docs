@@ -525,7 +525,7 @@
                 Nach erfolgreicher Anmeldung erhält dein Browser eine zufällige 256-Bit-Session-Kennung. Sie liegt ausschließlich in einem <strong>HttpOnly-Cookie</strong>: JavaScript kann sie nicht auslesen. Das Cookie ist an diesen Host gebunden, gilt für die gesamte Anwendung und verwendet <code>Secure</code> sowie <code>SameSite=Strict</code>. Regulärer Betrieb benötigt HTTPS. Eine ausdrücklich aktivierte Entwicklungsoption erlaubt Cookies ohne Secure nur bei lokaler Loopback-Verbindung und außerhalb des Produktionsmodus.
               </p>
               <p>
-                Die Session erlaubt Serverzugriffe, entschlüsselt aber keine Videos. Der Server speichert nur einen Hash ihrer Kennung in der konfigurierten Datenbank. Bei jeder geschützten Anfrage prüft er Ablaufzeit und Widerrufsversion und lädt das aktuelle Konto samt Rollen. Die feste Laufzeit beträgt standardmäßig eine Stunde; ein Neustart verlängert sie nicht und beendet bestehende Datenbank-Sessions nicht. Beim In-Memory-Adapter gehen Sessions zusammen mit der übrigen Datenbank beim Neustart verloren.
+                Die Session erlaubt Serverzugriffe, entschlüsselt aber keine Videos. Der Server speichert nur einen Hash ihrer Kennung in der konfigurierten Datenbank. Bei jeder geschützten Anfrage prüft er Ablaufzeit und Widerrufsversion und lädt das aktuelle Konto samt Rollen. Die gespeicherte Session-Version ist zusätzlich an den aktuellen Benutzernamen und den gespeicherten Passwortnachweis gebunden. Eine Änderung dieser Zugangsdaten macht alte Sessions unmittelbar mit dem Speichern ungültig; ein gesonderter Widerrufsschritt ist dafür nicht nötig. Die feste Laufzeit beträgt standardmäßig eine Stunde; ein Neustart verlängert sie nicht und beendet bestehende Datenbank-Sessions nicht. Beim In-Memory-Adapter gehen Sessions zusammen mit der übrigen Datenbank beim Neustart verloren.
               </p>
               <p>
                 Gegen fremd ausgelöste Änderungen schützt ein <strong>CSRF-Token</strong>: Vor der Anmeldung lädt der Browser eine kurzlebige Challenge, danach einen an seine Session gebundenen Wert. Jede schreibende Anfrage muss ihn in einem eigenen Header mitsenden, auch Login, Logout und Upload-Pakete. Der Server lehnt fremde Origins und als Cross-Site gekennzeichnete Änderungen zusätzlich ab. Das CSRF-Token ist kein Zugangsschlüssel und wird nur im Arbeitsspeicher gehalten.
@@ -603,7 +603,7 @@
               </p>
               <p>Eine administrative Umbenennung erzeugt zugleich ein temporäres Passwort und einen Reset-Link. Umbenennung und Zurücksetzen erfolgen in getrennten Schritten; ein Fehler kann den Vorgang unvollständig lassen.</p>
               <p>
-                Ein Passwortwechsel beendet bestehende Sessions nicht automatisch; „Überall abmelden“ widerruft sie. Er entzieht keine bereits bekannten Archivschlüssel. Wer sein Passwort vergessen hat, kann von einem anderen Admin mit entsperrten Archivschlüsseln einen neuen
+                Jede Passwort- oder Benutzernamenänderung beendet alle bisherigen Sessions des geänderten Kontos, einschließlich der aktuellen Sitzung. Das gilt auch für Änderungen durch einen Admin. Melde dich anschließend mit den neuen Zugangsdaten an. Bereits bekannte Archivschlüssel werden dadurch nicht entzogen. Wer sein Passwort vergessen hat, kann von einem anderen Admin mit entsperrten Archivschlüsseln einen neuen
                 Zugang erhalten.
               </p>
               <h3>Ein Konto löschen</h3>
@@ -1032,7 +1032,7 @@
                 After successful sign-in, your browser receives a random 256-bit session identifier. It exists only in an <strong>HttpOnly cookie</strong>, which JavaScript cannot read. The cookie is bound to this host, covers the application and uses <code>Secure</code> and <code>SameSite=Strict</code>. Normal operation requires HTTPS. An explicitly enabled development option allows cookies without Secure only over local loopback connections outside production mode.
               </p>
               <p>
-                The session permits server access but does not decrypt videos. The server stores only a hash of its identifier in the configured database. Every protected request checks expiry and revocation version and loads the current account and roles. The fixed lifetime defaults to one hour; a restart neither extends it nor ends existing database sessions. With the in-memory adapter, sessions disappear together with the rest of the database on restart.
+                The session permits server access but does not decrypt videos. The server stores only a hash of its identifier in the configured database. Every protected request checks expiry and revocation version and loads the current account and roles. The stored session version is also bound to the current username and stored password proof. Changing these credentials invalidates old sessions as soon as the update is saved, without a separate revocation step. The fixed lifetime defaults to one hour; a restart neither extends it nor ends existing database sessions. With the in-memory adapter, sessions disappear together with the rest of the database on restart.
               </p>
               <p>
                 A <strong>CSRF token</strong> protects against changes triggered by another site. Before sign-in, the browser loads a short-lived challenge; afterwards, it uses a value bound to its session. Every write must include this value in a separate header, including login, logout and upload packets. The server also rejects foreign origins and changes marked cross-site. The CSRF token is not an access credential and is kept only in memory.
@@ -1108,7 +1108,7 @@
                 successful completion or closing the view. For initial key setup, the browser uses the password just entered at sign-in.
               </p>
               <p>Administrative renaming also generates a temporary password and reset link. Renaming and resetting happen in separate steps; an error can leave the operation incomplete.</p>
-              <p>A password change does not automatically end existing sessions; “Sign out everywhere” revokes them. It does not revoke archive keys already known. Someone who forgets a password can receive new access from another admin with unlocked archive keys.</p>
+              <p>Every password or username change ends all existing sessions of the changed account, including its current session. This also applies to changes made by an admin. Sign in again with the new credentials afterwards. Archive keys already known are not revoked. Someone who forgets a password can receive new access from another admin with unlocked archive keys.</p>
               <h3>Delete an account</h3>
               <p>The server first processes the account’s comments as deletion markers, then removes the account. This ends further access to the server for that account. Previously copied content and keys remain usable.</p>
             </section>
