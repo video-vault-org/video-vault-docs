@@ -522,12 +522,16 @@
             <section id="de-login" aria-labelledby="de-login-title">
               <h2 id="de-login-title">05 · Anmeldung und Berechtigungen</h2>
               <p>
-                Nach erfolgreicher Anmeldung stellt der Server ein signiertes Zugriffstoken aus, ein <strong>JWT</strong>. Es ist standardmäßig eine Stunde gültig. Für die Signatur verwendet der Server HMAC-SHA-256 mit einem zufällig aus zehn eigenen
-                256-Bit-Schlüsseln gewählten Schlüssel. Diese Schlüssel sind von den Archivschlüsseln unabhängig.
+                Nach erfolgreicher Anmeldung erhält dein Browser eine zufällige 256-Bit-Session-Kennung. Sie liegt ausschließlich in einem <strong>HttpOnly-Cookie</strong>: JavaScript kann sie nicht auslesen. Das Cookie ist an diesen Host gebunden, gilt für die gesamte Anwendung und verwendet <code>Secure</code> sowie <code>SameSite=Strict</code>. Regulärer Betrieb benötigt HTTPS. Eine ausdrücklich aktivierte Entwicklungsoption erlaubt Cookies ohne Secure nur bei lokaler Loopback-Verbindung und außerhalb des Produktionsmodus.
               </p>
               <p>
-                Das Token erlaubt Zugriffe auf den Server, entschlüsselt aber keine Videos. Bei geschützten Anfragen prüft der Server das Token und lädt das Konto samt Rollen aus der Datenbank. Gelöschte Konten erhalten so keinen weiteren
-                Serverzugriff. Der Browser speichert das Token in localStorage; wer es kopiert, kann es bis zu seinem Ablauf verwenden, solange das Konto besteht.
+                Die Session erlaubt Serverzugriffe, entschlüsselt aber keine Videos. Der Server speichert nur einen Hash ihrer Kennung in der konfigurierten Datenbank. Bei jeder geschützten Anfrage prüft er Ablaufzeit und Widerrufsversion und lädt das aktuelle Konto samt Rollen. Die feste Laufzeit beträgt standardmäßig eine Stunde; ein Neustart verlängert sie nicht und beendet bestehende Datenbank-Sessions nicht. Beim In-Memory-Adapter gehen Sessions zusammen mit der übrigen Datenbank beim Neustart verloren.
+              </p>
+              <p>
+                Gegen fremd ausgelöste Änderungen schützt ein <strong>CSRF-Token</strong>: Vor der Anmeldung lädt der Browser eine kurzlebige Challenge, danach einen an seine Session gebundenen Wert. Jede schreibende Anfrage muss ihn in einem eigenen Header mitsenden, auch Login, Logout und Upload-Pakete. Der Server lehnt fremde Origins und als Cross-Site gekennzeichnete Änderungen zusätzlich ab. Das CSRF-Token ist kein Zugangsschlüssel und wird nur im Arbeitsspeicher gehalten.
+              </p>
+              <p>
+                „Abmelden“ widerruft diese Session. „Überall abmelden“ widerruft alle bisherigen Sessions deines Kontos, einschließlich der aktuellen. Beim Kontolöschen werden ebenfalls alle Sessions widerrufen. Dafür verwendet der Server eine atomar gespeicherte Widerrufsversion; bei DynamoDB werden Session und Version direkt und stark konsistent gelesen. Ein bereits laufender Vorgang kann noch abgeschlossen werden. Bereits bekannte Archivschlüssel oder gespeicherte Dateien werden durch Abmelden nicht zurückgerufen.
               </p>
               <table>
                 <thead>
@@ -599,7 +603,7 @@
               </p>
               <p>Eine administrative Umbenennung erzeugt zugleich ein temporäres Passwort und einen Reset-Link. Umbenennung und Zurücksetzen erfolgen in getrennten Schritten; ein Fehler kann den Vorgang unvollständig lassen.</p>
               <p>
-                Ein Passwortwechsel beendet keine bereits ausgestellten Zugriffstokens und entzieht keine bereits bekannten Archivschlüssel. Wer sein Passwort vergessen hat, kann von einem anderen Admin mit entsperrten Archivschlüsseln einen neuen
+                Ein Passwortwechsel beendet bestehende Sessions nicht automatisch; „Überall abmelden“ widerruft sie. Er entzieht keine bereits bekannten Archivschlüssel. Wer sein Passwort vergessen hat, kann von einem anderen Admin mit entsperrten Archivschlüsseln einen neuen
                 Zugang erhalten.
               </p>
               <h3>Ein Konto löschen</h3>
@@ -736,16 +740,16 @@
               <h2 id="de-limits-title">10 · Auf deinem Gerät: Schutz und Grenzen</h2>
               <h3>Entsperren und Offline-Nutzung</h3>
               <p>
-                Nach jedem Neuladen entsperrt dein Passwort die Archivschlüssel lokal. Passwort und offene Schlüssel werden von der Anwendung nicht dauerhaft gespeichert. Im Browserspeicher liegen das Zugriffstoken, die öffentliche
+                Nach jedem Neuladen entsperrt dein Passwort die Archivschlüssel lokal. Passwort und offene Schlüssel werden von der Anwendung nicht dauerhaft gespeichert. In localStorage liegen nur die öffentliche Session-Ablaufzeit, die öffentliche
                 Anwendungskonfiguration und das Kontoprofil mit verpackten Schlüsseln.
               </p>
               <p>
                 Im Offline-Katalog bleiben Titel und Beschreibung verschlüsselt; die übrigen Metadaten stehen im Klartext. Geladene Vorschaubilder werden verschlüsselt gespeichert. Die Daten sind nach Instanz-Salt und Konto getrennt.
-                Offline-Entsperren benötigt ein gespeichertes Profil und ein lokal noch nicht abgelaufenes Token. Das ist keine erneute Berechtigungsprüfung durch den Server. Videos und Kommentare werden online geladen; Videos werden nicht dauerhaft
+                Offline-Entsperren benötigt ein gespeichertes Profil und eine lokal noch nicht abgelaufene Session-Ablaufzeit. Ein offline befindliches Gerät erfährt einen serverseitigen Widerruf erst bei erneuter Verbindung; diese lokale Anzeige ist keine Serverberechtigung. Das ist keine erneute Berechtigungsprüfung durch den Server. Videos und Kommentare werden online geladen; Videos werden nicht dauerhaft
                 offline gespeichert.
               </p>
               <p>
-                Abmelden entfernt das Token und beendet die geöffneten Medienfreigaben, lässt verschlüsselte Offline-Daten aber bestehen. „Offline-Daten löschen“ entfernt Katalog und Thumbnails dieses Kontos und meldet dich ab. Die öffentliche
+                Erfolgreiches Abmelden widerruft die Server-Session, entfernt das Cookie und die lokale Ablaufzeit und beendet die geöffneten Medienfreigaben, lässt verschlüsselte Offline-Daten aber bestehen. „Offline-Daten löschen“ entfernt Katalog und Thumbnails dieses Kontos und meldet dich ab. Die öffentliche
                 Konfiguration und das Kontoprofil mit verpackten Schlüsseln bleiben im Browserspeicher.
               </p>
               <p>
@@ -753,6 +757,7 @@
                 und entsperrt bleiben.
               </p>
               <h3>Schutz vor eingeschleustem Anwendungscode</h3>
+              <p>HttpOnly verhindert das Auslesen der Session-Kennung durch JavaScript. Eingeschleuster Code könnte trotzdem im Namen einer offenen Session handeln oder Passwort und entschlüsselte Inhalte abgreifen. Cookies und CSRF-Schutz ersetzen daher keinen Schutz vor XSS und manipuliertem Anwendungscode.</p>
               <p>
                 Namen, Metadaten und entschlüsselte Texte werden als Text angezeigt, nicht als ausführbares HTML. Eine automatische Quellcode-Prüfung und Angriffstests sichern dieses Verhalten ab. Die Content Security Policy (CSP) ist eine zusätzliche
                 Browser-Schranke: Das Startskript muss zu seinem beim Build festgelegten Fingerabdruck passen. Eingeschleuste Skripte, JavaScript in HTML-Ereignisbehandlern und die allgemeine Ausführung von JavaScript-Text über eval sind gesperrt.
@@ -846,8 +851,8 @@
                     <td>Schlüsselbasierter Prüfwert für die Metadaten; hier HMAC-SHA-256 mit dem gemeinsamen Prüfschlüssel.</td>
                   </tr>
                   <tr>
-                    <td>JWT</td>
-                    <td>Signiertes Zugriffstoken für den Server; enthält keine Archivschlüssel und entschlüsselt keine Inhalte.</td>
+                    <td>Session</td>
+                    <td>Widerrufbare Anmeldung beim Server; enthält keine Archivschlüssel und entschlüsselt keine Inhalte.</td>
                   </tr>
                   <tr>
                     <td>Base64 / Base64url</td>
@@ -1024,12 +1029,16 @@
             <section id="en-login" aria-labelledby="en-login-title">
               <h2 id="en-login-title">05 · Sign-in and permissions</h2>
               <p>
-                After successful sign-in, the server issues a signed access token, a <strong>JWT</strong>. Its default lifetime is one hour. The server signs it with HMAC-SHA-256 using a random choice from ten of its own 256-bit keys. These keys are
-                independent of the archive keys.
+                After successful sign-in, your browser receives a random 256-bit session identifier. It exists only in an <strong>HttpOnly cookie</strong>, which JavaScript cannot read. The cookie is bound to this host, covers the application and uses <code>Secure</code> and <code>SameSite=Strict</code>. Normal operation requires HTTPS. An explicitly enabled development option allows cookies without Secure only over local loopback connections outside production mode.
               </p>
               <p>
-                The token allows access to the server but does not decrypt videos. For protected requests, the server checks the token and loads the account and its roles from the database. Deleted accounts therefore receive no further access to the
-                server. The browser stores the token in localStorage; someone who copies it can use it until expiry while the account exists.
+                The session permits server access but does not decrypt videos. The server stores only a hash of its identifier in the configured database. Every protected request checks expiry and revocation version and loads the current account and roles. The fixed lifetime defaults to one hour; a restart neither extends it nor ends existing database sessions. With the in-memory adapter, sessions disappear together with the rest of the database on restart.
+              </p>
+              <p>
+                A <strong>CSRF token</strong> protects against changes triggered by another site. Before sign-in, the browser loads a short-lived challenge; afterwards, it uses a value bound to its session. Every write must include this value in a separate header, including login, logout and upload packets. The server also rejects foreign origins and changes marked cross-site. The CSRF token is not an access credential and is kept only in memory.
+              </p>
+              <p>
+                “Sign out” revokes this session. “Sign out everywhere” revokes every existing session for your account, including this one. Deleting an account also revokes all its sessions. The server uses an atomically stored revocation version; DynamoDB reads sessions and versions directly with strong consistency. An operation already in progress may still finish. Signing out cannot revoke archive keys already known or files already saved.
               </p>
               <table>
                 <thead>
@@ -1099,7 +1108,7 @@
                 successful completion or closing the view. For initial key setup, the browser uses the password just entered at sign-in.
               </p>
               <p>Administrative renaming also generates a temporary password and reset link. Renaming and resetting happen in separate steps; an error can leave the operation incomplete.</p>
-              <p>A password change does not invalidate already issued access tokens or revoke already known archive keys. Someone who forgets a password can receive new access from another admin with unlocked archive keys.</p>
+              <p>A password change does not automatically end existing sessions; “Sign out everywhere” revokes them. It does not revoke archive keys already known. Someone who forgets a password can receive new access from another admin with unlocked archive keys.</p>
               <h3>Delete an account</h3>
               <p>The server first processes the account’s comments as deletion markers, then removes the account. This ends further access to the server for that account. Previously copied content and keys remain usable.</p>
             </section>
@@ -1219,15 +1228,15 @@
               <h2 id="en-limits-title">10 · On your device: protection and limits</h2>
               <h3>Unlocking and offline use</h3>
               <p>
-                After each reload, your password unlocks the archive keys locally. The application does not persist your password or unwrapped keys. Browser storage holds the access token, public application configuration and account profile with
+                After each reload, your password unlocks the archive keys locally. The application does not persist your password or unwrapped keys. localStorage holds only the public session expiry time, public application configuration and account profile with
                 wrapped keys.
               </p>
               <p>
-                Titles and descriptions remain encrypted in the offline catalog; other metadata is plaintext. Loaded thumbnails are stored encrypted. Data is separated by instance salt and account. Offline unlocking needs a stored profile and a token
-                that has not expired locally. It is not a fresh permission check by the server. Videos and comments are loaded online; videos are not persistently stored offline.
+                Titles and descriptions remain encrypted in the offline catalog; other metadata is plaintext. Loaded thumbnails are stored encrypted. Data is separated by instance salt and account. Offline unlocking needs a stored profile and a session expiry time
+                that has not elapsed locally. An offline device learns about server-side revocation only upon reconnecting; this local metadata does not grant server access. It is not a fresh permission check by the server. Videos and comments are loaded online; videos are not persistently stored offline.
               </p>
               <p>
-                Signing out removes the token and ends active media capabilities but retains encrypted offline data. “Clear offline data” removes this account’s catalog and thumbnails and signs you out. Public configuration and the profile containing
+                Successful sign-out revokes the server session, removes the cookie and local expiry metadata, and ends active media capabilities but retains encrypted offline data. “Clear offline data” removes this account’s catalog and thumbnails and signs you out. Public configuration and the profile containing
                 wrapped keys remain in browser storage.
               </p>
               <p>
@@ -1235,6 +1244,7 @@
                 downloads.
               </p>
               <h3>Protection against injected application code</h3>
+              <p>HttpOnly prevents JavaScript from reading the session credential. Injected code could still act through an open session or capture passwords and decrypted content. Cookies and CSRF protection therefore do not replace defenses against XSS and manipulated application code.</p>
               <p>
                 Names, metadata and decrypted text are displayed as text, not executable HTML. An automated source check and injection tests guard this behavior. Content Security Policy (CSP) adds a browser barrier: the entry script must match its
                 build-time fingerprint. Injected scripts, JavaScript in HTML event handlers and general execution of JavaScript strings through eval are blocked. WebAssembly remains available for password derivation and video-format checks.
@@ -1324,8 +1334,8 @@
                     <td>A keyed check for metadata; here HMAC-SHA-256 using the shared authentication key.</td>
                   </tr>
                   <tr>
-                    <td>JWT</td>
-                    <td>A signed access token for the server; it contains no archive keys and does not decrypt content.</td>
+                    <td>Session</td>
+                    <td>A revocable server login; it contains no archive keys and does not decrypt content.</td>
                   </tr>
                   <tr>
                     <td>Base64 / Base64url</td>
