@@ -752,6 +752,27 @@
                 Ein Service Worker hält die lokalen App-Dateien offline verfügbar und vermittelt entschlüsselte Bereiche an den Player. Er bekommt keine dauerhafte Kopie der offenen Archivschlüssel. Die Seite muss für Wiedergabe und Download geöffnet
                 und entsperrt bleiben.
               </p>
+              <h3>Schutz vor eingeschleustem Anwendungscode</h3>
+              <p>
+                Namen, Metadaten und entschlüsselte Texte werden als Text angezeigt, nicht als ausführbares HTML. Eine automatische Quellcode-Prüfung und Angriffstests sichern dieses Verhalten ab. Die Content Security Policy (CSP) ist eine zusätzliche
+                Browser-Schranke: Das Startskript muss zu seinem beim Build festgelegten Fingerabdruck passen. Eingeschleuste Skripte, JavaScript in HTML-Ereignisbehandlern und die allgemeine Ausführung von JavaScript-Text über eval sind gesperrt.
+                WebAssembly bleibt für die Passwortableitung und die Prüfung von Videoformaten erlaubt. Netzwerkverbindungen der Anwendung sind auf die eigene Instanz und die Passwort-Leak-Prüfung bei Have I Been Pwned begrenzt.
+              </p>
+              <p>
+                Der Server prüft die gebauten Dateien gegen ein Integritätsmanifest, bevor er die Anwendung startet. Abweichungen verhindern den Start. Geprüfte Skripte, Stylesheets und WebAssembly werden anschließend aus dem Arbeitsspeicher ausgeliefert; spätere Änderungen an diesen Dateien werden nicht nachgeladen. Beim Service Worker wird zusätzlich jede Auslieferung gegen die geprüfte Vorlage kontrolliert; nur die Version für Titel und Bilder darf sich ändern. Im Docker-Image sind Programmcode, Integritätsmanifest und Worker-Vorlage für den Serverbenutzer schreibgeschützt.
+                Die veränderlichen Dateien für Titel und Bilder bleiben davon getrennt. Die API-Dokumentation verwendet für ihre Skripte bei jedem HTML-Abruf eine neue zufällige Freigabe (Nonce). Für Darstellung und Fortschrittsanzeigen sind
+                Inline-Stilangaben erlaubt; die API-Dokumentation benötigt außerdem ein eigenes Inline-Stylesheet. Diese Ausnahmen erlauben kein Inline-JavaScript. Entschlüsselte Mediendaten werden nicht als HTML-Dokumente ausgeliefert und erhalten ebenfalls eine Richtlinie gegen Skriptausführung.
+              </p>
+              <h3>Herkunft der ausgelieferten Version</h3>
+              <p>
+                Die Build-Workflows verwenden feste Paket-Lockfiles, erlauben Installationsskripte gezielt nur für Argon2 und esbuild und prüfen Abhängigkeiten auf bekannte Sicherheitslücken. GitHub Actions und Docker-Basisimages sind auf feste
+                Versionen über Commit-IDs beziehungsweise Datei-Fingerabdrücke festgelegt. Dependabot schlägt regelmäßig Aktualisierungen vor. Beim ZIP-Release laufen Build und Veröffentlichung in getrennten Jobs; der Build besitzt nur lesende
+                GitHub-Rechte. Die Veröffentlichungs-Workflows erstellen prüfbare Herkunftsnachweise für ZIP und Docker-Image. Wie Betreiber diese prüfen und Repository-Zugriffe absichern, beschreibt die Betriebsdokumentation.
+              </p>
+              <p>
+                Diese Prüfungen bestätigen die Übereinstimmung mit dem vorgesehenen Build und dessen Herkunft, nicht die Fehlerfreiheit oder Unbedenklichkeit jedes enthaltenen Pakets. Kontrolliert ein Angreifer die vertrauenswürdige Build-Umgebung
+                oder den gesamten ausliefernden Server, kann er Code und Prüfwerte gemeinsam ersetzen. Die Web-Anwendung besitzt keinen davon unabhängigen Vertrauensanker.
+              </p>
               <h3>Was die Verschlüsselung nicht abdeckt</h3>
               <table>
                 <thead>
@@ -1212,6 +1233,27 @@
               <p>
                 A service worker makes local application assets available offline and passes decrypted ranges to the player. It does not receive a persistent copy of the unwrapped archive keys. The page must stay open and unlocked for playback and
                 downloads.
+              </p>
+              <h3>Protection against injected application code</h3>
+              <p>
+                Names, metadata and decrypted text are displayed as text, not executable HTML. An automated source check and injection tests guard this behavior. Content Security Policy (CSP) adds a browser barrier: the entry script must match its
+                build-time fingerprint. Injected scripts, JavaScript in HTML event handlers and general execution of JavaScript strings through eval are blocked. WebAssembly remains available for password derivation and video-format checks.
+                The application’s network connections are limited to its own instance and the Have I Been Pwned password-breach check.
+              </p>
+              <p>
+                The server checks built files against an integrity manifest before starting the application. Mismatches stop startup. Verified scripts, stylesheets and WebAssembly are then served from memory; later changes to those files are not reloaded. Every service-worker response is additionally checked against the verified template; only the title/image version may change. In the Docker image, application code, integrity metadata and the worker template are read-only to the server account. Mutable title and image output files are kept separate.
+                API documentation uses a fresh random script authorization (nonce) for each HTML response. Inline style attributes remain allowed for layout and progress indicators; API documentation additionally needs its own inline stylesheet.
+                These exceptions do not allow inline JavaScript. Decrypted media is not served as HTML documents and also receives a policy that prohibits script execution.
+              </p>
+              <h3>Origin of the delivered version</h3>
+              <p>
+                Build workflows use fixed package lockfiles, explicitly allow installation scripts only for Argon2 and esbuild, and check dependencies for known vulnerabilities. GitHub Actions and Docker base images are pinned using commit IDs and
+                image digests. Dependabot regularly proposes updates. ZIP builds and publication run in separate jobs; the build has read-only GitHub permissions. Publishing workflows generate verifiable provenance attestations for ZIPs and Docker
+                images. The operating guide explains verification and repository access controls.
+              </p>
+              <p>
+                These checks establish consistency with the intended build and its origin, not that every dependency is harmless or free of bugs. An attacker controlling the trusted build environment or the entire delivery server can replace both
+                code and trust metadata. The web application has no independent trust anchor outside them.
               </p>
               <h3>What encryption does not cover</h3>
               <table>
