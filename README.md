@@ -20,7 +20,7 @@ Publish **only `dist/`**, which contains these static, independently readable pa
 
 Each page contains its own language's complete text, localized title and description, canonical URL, reciprocal `hreflang` links and Open Graph metadata. Language selection uses ordinary links and works without JavaScript. The security page additionally preserves section anchors when switching languages. Pages do not redirect based on browser language.
 
-`dist/sitemap.xml` lists the four canonical pages; `dist/robots.txt` points crawlers to it. The Open Graph image is the existing VideoVault logo in `assets/og-logo.png` (715 × 715 pixels). Image URLs are absolute HTTPS URLs.
+`dist/sitemap.xml` lists the four canonical pages; `dist/robots.txt` points crawlers to it. The Open Graph image is the existing VideoVault logo in `assets/og-logo-compact.png` (715 × 715 pixels, optimized PNG under 200 KB). The distinct image filename avoids reusing the previous image URL. Image URLs are absolute HTTPS URLs.
 
 For a local preview:
 
@@ -54,4 +54,4 @@ The JSON defines permanent HTTP 301 redirects from `/` and `/index.html` to `/de
 
 Configure the custom domain `video-vault.de` and HTTPS in Amplify. If `www.video-vault.de` is attached too, the included domain rule permanently redirects it to the non-www domain while preserving paths. DNS and certificates must cover both names for that redirect to be reachable.
 
-After deployment, verify the redirects and publicly accessible `robots.txt`, `sitemap.xml` and `/assets/og-logo.png`. You can then submit `https://video-vault.de/sitemap.xml` to Google Search Console. Search indexing and link-preview refreshes are controlled by the respective crawlers and are not immediate.
+After deployment, verify the redirects and publicly accessible `robots.txt`, `sitemap.xml` and `/assets/og-logo-compact.png`. You can then submit `https://video-vault.de/sitemap.xml` to Google Search Console. Search indexing and link-preview refreshes are controlled by the respective crawlers and are not immediate.

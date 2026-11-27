@@ -72,14 +72,15 @@ test('publishes one complete language per URL with descriptive language-specific
 });
 
 test('adds complete static Open Graph tags and real, absolute image dimensions on all four pages', async () => {
-  const image = await readFile(join(output, 'assets/og-logo.png'));
+  const image = await readFile(join(output, 'assets/og-logo-compact.png'));
+  assert(image.length < 200_000, 'OG image must stay under 200 KB for lightweight link previews');
   for (const path of paths) {
     const html = await readFile(filename(path), 'utf8');
     const value = (property) => attribute(html, new RegExp(`<meta\\b[^>]*property="og:${property}"[^>]*>`), 'content');
     assert.equal(value('type'), 'website');
     assert.equal(value('site_name'), 'VideoVault');
     assert.equal(value('url'), origin + path);
-    assert.equal(value('image'), `${origin}/assets/og-logo.png`);
+    assert.equal(value('image'), `${origin}/assets/og-logo-compact.png`);
     assert.equal(value('image:type'), 'image/png');
     assert.equal(Number(value('image:width')), image.readUInt32BE(16));
     assert.equal(Number(value('image:height')), image.readUInt32BE(20));
