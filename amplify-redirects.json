@@ -1,0 +1,11 @@
+[
+  { "source": "https://www.video-vault.de", "target": "https://video-vault.de", "status": "301", "condition": null },
+  { "source": "/", "target": "/de/", "status": "301", "condition": null },
+  { "source": "/index.html", "target": "/de/", "status": "301", "condition": null },
+  { "source": "/SECURITY-ARCHITECTURE.html", "target": "/de/security.html", "status": "301", "condition": null },
+  { "source": "/de/index.html", "target": "/de/", "status": "301", "condition": null },
+  { "source": "/en/index.html", "target": "/en/", "status": "301", "condition": null },
+  { "source": "/de", "target": "/de/", "status": "301", "condition": null },
+  { "source": "/en", "target": "/en/", "status": "301", "condition": null },
+  { "source": "/<*>", "target": "/404.html", "status": "404", "condition": null }
+]
