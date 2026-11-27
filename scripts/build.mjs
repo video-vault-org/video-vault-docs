@@ -75,7 +75,7 @@ const metadata = function (language, page, width, height) {
     <meta property="og:url" content="${url(language, page)}" />
     <meta property="og:locale" content="${language === 'de' ? 'de_DE' : 'en_US'}" />
     <meta property="og:locale:alternate" content="${other === 'de' ? 'de_DE' : 'en_US'}" />
-    <meta property="og:image" content="${origin}/assets/og-logo.png" />
+    <meta property="og:image" content="${origin}/assets/og-logo-compact.png" />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="${width}" />
     <meta property="og:image:height" content="${height}" />
@@ -153,7 +153,7 @@ const build = async function ({ root = defaultRoot, output = join(root, 'dist') 
     readFile(join(root, 'index.html'), 'utf8'),
     readFile(join(root, 'SECURITY-ARCHITECTURE.html'), 'utf8'),
     readFile(join(root, 'styles.css'), 'utf8'),
-    readFile(join(root, 'assets/og-logo.png'))
+    readFile(join(root, 'assets/og-logo-compact.png'))
   ]);
   if (logo.length < 24 || logo.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a') throw new Error('OG logo must be a PNG');
   const width = logo.readUInt32BE(16),
