@@ -600,7 +600,7 @@
                 aus dem Link in das Pflichtfeld für das aktuelle Passwort; es bleibt nur im Arbeitsspeicher.
               </p>
               <p>
-                Die zusätzliche Bestätigung gilt für Benutzeranlage, Anzeigenamen, Benutzernamen, Passwörter, Rollenänderungen, administrative Kontolöschung und die einmalige Schlüsselinitialisierung des ersten Admins. Lesende Admin-Zugriffe
+                Die zusätzliche Bestätigung gilt für Benutzeranlage, Anzeigenamen, Benutzernamen, Passwörter, Rollenänderungen, eigene und administrative Kontolöschung und die einmalige Schlüsselinitialisierung des ersten Admins. Lesende Admin-Zugriffe
                 benötigen keine erneute Passworteingabe. Die Benutzerverwaltung leitet den Nachweis aus dem eigenen Admin-Passwort ab und sendet ihn bei jeder schreibenden Anfrage mit. Eine Eingabe kann mehrere Anfragen eines Vorgangs bestätigen;
                 nach erfolgreichem Abschluss oder beim Schließen der Ansicht bleibt das Passwort nicht gespeichert. Bei der ersten Schlüsselinitialisierung verwendet der Browser das gerade eingegebene Anmeldepasswort.
               </p>
@@ -611,7 +611,7 @@
               </p>
               <h3>Ein Konto löschen</h3>
               <p>
-                Der Server bearbeitet zuerst die zugehörigen Kommentare als Löschmarkierungen und entfernt danach das Konto. Das beendet dessen weitere Zugriffe auf den Server. Bereits kopierte Inhalte und Schlüssel werden dadurch nicht unbrauchbar.
+                Zum Löschen deines eigenen Kontos musst du dein aktuelles Passwort eingeben. Der Browser sendet nur den daraus abgeleiteten Login-Nachweis; der Server prüft ihn mit denselben Fehlversuchszählern und Sperrzeiten wie beim Login. Ohne gültige Bestätigung bleiben Konto und Kommentare unverändert. Nach erfolgreicher Prüfung bearbeitet der Server die zugehörigen Kommentare als Löschmarkierungen, widerruft alle Sessions des Kontos und entfernt danach das Konto. Bereits kopierte Inhalte und Schlüssel werden dadurch nicht unbrauchbar.
               </p>
             </section>
             <section id="de-files" aria-labelledby="de-files-title">
@@ -1106,14 +1106,14 @@
                 only in memory.
               </p>
               <p>
-                Additional confirmation covers account creation, display names, usernames, passwords, role changes, administrative account deletion and the first admin’s one-time key initialization. Read-only admin access does not require
+                Additional confirmation covers account creation, display names, usernames, passwords, role changes, deletion of your own or another account and the first admin’s one-time key initialization. Read-only admin access does not require
                 another password entry. User management derives the proof from the acting admin’s password and includes it with every writing request. One entry can confirm several requests within an action; the password is not retained after
                 successful completion or closing the view. For initial key setup, the browser uses the password just entered at sign-in.
               </p>
               <p>Administrative renaming also generates a temporary password and reset link. Renaming and resetting happen in separate steps; an error can leave the operation incomplete.</p>
               <p>Every password or username change ends all existing sessions of the changed account, including its current session. This also applies to changes made by an admin. Sign in again with the new credentials afterwards. Archive keys already known are not revoked. Someone who forgets a password can receive new access from another admin with unlocked archive keys.</p>
               <h3>Delete an account</h3>
-              <p>The server first processes the account’s comments as deletion markers, then removes the account. This ends further access to the server for that account. Previously copied content and keys remain usable.</p>
+              <p>Deleting your own account requires entering your current password. The browser sends only the derived sign-in proof; the server verifies it using the same failed-attempt counters and lock periods as login. Without valid confirmation, the account and comments remain unchanged. After successful verification, the server processes the account’s comments as deletion markers, revokes all its sessions and then removes the account. Previously copied content and keys remain usable.</p>
             </section>
             <section id="en-files" aria-labelledby="en-files-title">
               <h2 id="en-files-title">07 · How videos and thumbnails are encrypted</h2>
